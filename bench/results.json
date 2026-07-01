@@ -1,0 +1,140 @@
+{
+  "accuracy": {
+    "clean": {
+      "dataset": {
+        "transactions": 64,
+        "observations": 24,
+        "sdn_entries": 3,
+        "actors": 8
+      },
+      "wallet_clustering": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 80,
+        "fp": 0,
+        "fn": 0
+      },
+      "mixer_detection": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 5,
+        "fp": 0,
+        "fn": 0
+      },
+      "peel_chain_recall": 1.0,
+      "demix": {
+        "candidates": 80,
+        "input_coverage": 1.0,
+        "mean_ambiguity": 4.0,
+        "mean_confidence": 0.3712
+      },
+      "infra_clustering": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 18,
+        "fp": 0,
+        "fn": 0
+      },
+      "sanctions": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0
+      },
+      "trace_recall": 1.0,
+      "determinism": true
+    },
+    "noisy": {
+      "dataset": {
+        "transactions": 68,
+        "observations": 24,
+        "sdn_entries": 3,
+        "actors": 8
+      },
+      "wallet_clustering": {
+        "precision": 0.4444,
+        "recall": 1.0,
+        "f1": 0.6154,
+        "tp": 80,
+        "fp": 100,
+        "fn": 0
+      },
+      "mixer_detection": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 5,
+        "fp": 0,
+        "fn": 0
+      },
+      "peel_chain_recall": 1.0,
+      "demix": {
+        "candidates": 80,
+        "input_coverage": 1.0,
+        "mean_ambiguity": 4.0,
+        "mean_confidence": 0.3712
+      },
+      "infra_clustering": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 18,
+        "fp": 0,
+        "fn": 0
+      },
+      "sanctions": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0
+      },
+      "trace_recall": 1.0,
+      "determinism": true
+    }
+  },
+  "performance": [
+    {
+      "transactions": 2000,
+      "clusters_found": 1,
+      "cluster_s": 0.0027,
+      "detect_mixer_s": 0.0002,
+      "detect_peel_s": 0.0008,
+      "build_graph_s": 0.0181,
+      "total_s": 0.0219,
+      "tx_per_s": 91385
+    },
+    {
+      "transactions": 10000,
+      "clusters_found": 1,
+      "cluster_s": 0.0157,
+      "detect_mixer_s": 0.0016,
+      "detect_peel_s": 0.0052,
+      "build_graph_s": 0.1129,
+      "total_s": 0.1353,
+      "tx_per_s": 73907
+    },
+    {
+      "transactions": 40000,
+      "clusters_found": 1,
+      "cluster_s": 0.072,
+      "detect_mixer_s": 0.0062,
+      "detect_peel_s": 0.0319,
+      "build_graph_s": 0.6622,
+      "total_s": 0.7723,
+      "tx_per_s": 51792
+    }
+  ],
+  "environment": {
+    "python": "3.14.0",
+    "implementation": "CPython",
+    "system": "Windows",
+    "machine": "AMD64"
+  }
+}

@@ -23,4 +23,7 @@ Initial public release.
 - CLI (`cognis-lattice`) with `demo`, `cluster-chain`, `trace`, `detect-mixer`,
   `infra`, `screen`, and `fuse` subcommands.
 - Zero-dependency (stdlib-only) design for offline / air-gapped deployment.
-- 24 unit tests; GitHub Actions CI across Python 3.9–3.13.
+- Verification harness (`bench/`): deterministic ground-truth datasets, accuracy
+  metrics (precision/recall/F1) on clean and noisy profiles, performance
+  benchmarks, and a determinism check; results in `RESULTS.md`.
+- 29 tests (24 unit + 5 verification gates); GitHub Actions CI across Python 3.9–3.13.

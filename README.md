@@ -85,10 +85,33 @@ Tor cryptography and does **not** claim deterministic de-anonymization of privac
 coins (e.g. Monero). Read [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md) before
 acting on any output.
 
+## Verification & proof
+
+Every capability is measured against **planted ground truth** on deterministic
+synthetic datasets, and the metrics are gated in CI. Full, reproducible results
+are in [`RESULTS.md`](RESULTS.md) (regenerate with `python bench/run_all.py`).
+
+Measured on CPython 3.14 (clean profile recovers planted structure exactly; the
+noisy profile injects a cross-actor confounder to show honest degradation):
+
+| Metric | Clean | Noisy |
+|---|---|---|
+| Wallet clustering (pairwise) | P/R/F1 = 1.00 | R=1.00, P=0.44 (over-merge, by design) |
+| Mixer detection | F1 = 1.00 | F1 = 1.00 |
+| Infrastructure clustering | F1 = 1.00 | F1 = 1.00 |
+| Sanctions screening | P/R = 1.00 | P/R = 1.00 |
+| Peel-chain / trace recall | 1.00 | 1.00 |
+| STIX determinism | ✓ identical across runs | ✓ |
+
+Throughput (single-thread, stdlib only): **~52k–91k transactions/sec** for
+clustering + mixer + peel + graph build (2k→40k tx). De-mix honestly reports mean
+ambiguity 4.0 and reduced confidence 0.37 on equal-value mixing.
+
 ## Testing
 
 ```bash
-python -m pytest -q      # 24 tests
+python -m pytest -q      # 29 tests (24 unit + 5 verification gates)
+python bench/run_all.py  # regenerate RESULTS.md
 ```
 
 ## License
