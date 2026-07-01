@@ -206,3 +206,71 @@ def esplora_txs(content, address="", chain="bitcoin", source="btc_esplora") -> l
             "inputs": ins, "outputs": outs,
         })
     return txs
+
+
+def blockscout_txlist(content, source="eth_blockscout", chain="ethereum") -> list:
+    """Blockscout `account/txlist` JSON -> Lattice transactions (account model:
+    single from -> single to, value in wei)."""
+    txs = []
+    try:
+        data = json.loads(_text(content))
+    except json.JSONDecodeError:
+        return txs
+    for t in data.get("result", []) if isinstance(data, dict) else []:
+        if not isinstance(t, dict):
+            continue
+        try:
+            val = int(t.get("value", "0") or "0") / 1e18
+        except ValueError:
+            val = 0.0
+        frm, to = t.get("from"), t.get("to")
+        txs.append({
+            "txid": t.get("hash"), "asset": chain,
+            "timestamp": int(t.get("timeStamp", 0) or 0),
+            "inputs": [{"address": frm, "value": round(val, 8)}] if frm else [],
+            "outputs": [{"address": to, "value": round(val, 8)}] if to else [],
+        })
+    return txs
+
+
+def _hexint(x):
+    try:
+        return int(x, 16) if isinstance(x, str) and x.startswith("0x") else int(x)
+    except (ValueError, TypeError):
+        return 0
+
+
+def evm_block(content, chain="ethereum") -> list:
+    """eth_getBlockByNumber(full=True) JSON-RPC result -> Lattice transactions."""
+    txs = []
+    try:
+        res = (json.loads(_text(content)) or {}).get("result") or {}
+    except json.JSONDecodeError:
+        return txs
+    ts = _hexint(res.get("timestamp")) or None
+    for t in res.get("transactions", []):
+        if not isinstance(t, dict):
+            continue
+        val = _hexint(t.get("value")) / 1e18
+        frm, to = t.get("from"), t.get("to")
+        txs.append({
+            "txid": t.get("hash"), "asset": chain, "timestamp": ts,
+            "inputs": [{"address": frm, "value": round(val, 8)}] if frm else [],
+            "outputs": [{"address": to, "value": round(val, 8)}] if to else [],
+        })
+    return txs
+
+
+def solana_signatures(content, source="solana_rpc") -> list:
+    """getSignaturesForAddress JSON-RPC result -> signature references.
+
+    Solana full tx-graph extraction requires per-signature follow-up calls;
+    this returns the signature list (live connectivity + activity), which is the
+    first stage of on-chain tracing."""
+    try:
+        res = (json.loads(_text(content)) or {}).get("result") or []
+    except json.JSONDecodeError:
+        return []
+    return [{"signature": r.get("signature"), "slot": r.get("slot"),
+             "block_time": r.get("blockTime"), "err": r.get("err")}
+            for r in res if isinstance(r, dict)]

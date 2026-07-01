@@ -17,6 +17,7 @@ PARSERS = {
     "ransomwhere_json": parsers.ransomwhere_json,
     "cisa_kev_json": parsers.cisa_kev_json,
     "esplora": parsers.esplora_txs,
+    "blockscout_txlist": parsers.blockscout_txlist,
 }
 
 _BY_NAME = {s["name"]: s for s in CATALOG}
@@ -51,15 +52,38 @@ def fetch(name: str, client, address: str = None):
         if not address:
             raise ValueError(f"source {name} requires an address")
         url = url.replace("{addr}", address)
+    chain0 = src["chains"][0] if src["chains"] else ""
     data = client.get(url)
     parser = PARSERS.get(src["parser"])
     if parser is None:
         return {"raw": data if isinstance(data, (bytes, bytearray)) else data,
                 "note": f"{src['parser']}: catalog + raw fetch only in this version"}
     if src["parser"] == "esplora":
-        return parser(data, address=address or "", chain=(src["chains"][0] if src["chains"] else "bitcoin"),
-                      source=name)
+        return parser(data, address=address or "", chain=chain0 or "bitcoin", source=name)
+    if src["parser"] == "blockscout_txlist":
+        return parser(data, source=name, chain=chain0 or "ethereum")
     return parser(data, source=name)
+
+
+def fetch_onchain(name: str, client, address: str = None, block: str = "latest"):
+    """On-chain query dispatcher across explorer families (GET) and JSON-RPC (POST).
+
+    Returns Lattice-schema transactions for esplora/blockscout/evm, and signature
+    references for solana."""
+    src = get_source(name)
+    p = src["parser"]
+    chain0 = src["chains"][0] if src["chains"] else ""
+    if p == "evm_rpc":
+        payload = {"jsonrpc": "2.0", "id": 1, "method": "eth_getBlockByNumber",
+                   "params": [block, True]}
+        return parsers.evm_block(client.post(src["url"], payload), chain=chain0 or "ethereum")
+    if p == "solana_rpc":
+        if not address:
+            raise ValueError("solana requires an address")
+        payload = {"jsonrpc": "2.0", "id": 1, "method": "getSignaturesForAddress",
+                   "params": [address, {"limit": 25}]}
+        return parsers.solana_signatures(client.post(src["url"], payload), source=name)
+    return fetch(name, client, address=address)
 
 
 def stats() -> dict:

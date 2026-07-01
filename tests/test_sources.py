@@ -26,6 +26,11 @@ ESPLORA = '[{"txid":"abc","status":{"block_time":1700000000},"vin":[{"prevout":{
 IPLIST = "# header\n203.0.113.1\n198.51.100.2/32\nnotanip\n"
 
 
+BLOCKSCOUT = '{"status":"1","result":[{"hash":"0xaa","from":"0xfrom","to":"0xto","value":"1500000000000000000","timeStamp":"1700000000"}]}'
+EVM_BLOCK = '{"jsonrpc":"2.0","id":1,"result":{"timestamp":"0x64b5f000","transactions":[{"hash":"0xbb","from":"0xa","to":"0xb","value":"0xde0b6b3a7640000"}]}}'
+SOLANA_SIGS = '{"jsonrpc":"2.0","result":[{"signature":"sig1","slot":100,"blockTime":1700000000,"err":null},{"signature":"sig2","slot":101,"blockTime":1700000100,"err":null}]}'
+
+
 class FakeClient:
     def __init__(self, mapping):
         self.mapping = mapping
@@ -35,6 +40,13 @@ class FakeClient:
             if k in url:
                 return v.encode() if isinstance(v, str) else v
         raise RuntimeError("no fixture for " + url)
+
+    def post(self, url, payload):
+        method = payload.get("method", "")
+        for k, v in self.mapping.items():
+            if k in url or k in method:
+                return v.encode() if isinstance(v, str) else v
+        raise RuntimeError("no fixture for POST " + url)
 
 
 # ---------------- catalog integrity ----------------
@@ -101,6 +113,24 @@ def test_registry_fetch_ofac():
 def test_registry_fetch_esplora_address():
     txs = registry.fetch("btc_esplora", FakeClient({"blockstream.info": ESPLORA}), address="A1")
     assert txs[0]["txid"] == "abc"
+
+
+def test_evm_parsers_and_dispatch():
+    # blockscout account txlist (GET)
+    txs = registry.fetch_onchain("eth_blockscout", FakeClient({"blockscout.com": BLOCKSCOUT}), address="0xfrom")
+    assert txs[0] == {"txid": "0xaa", "asset": "ethereum", "timestamp": 1700000000,
+                      "inputs": [{"address": "0xfrom", "value": 1.5}],
+                      "outputs": [{"address": "0xto", "value": 1.5}]}
+    # EVM JSON-RPC block (POST) -> 1 ETH value decoded from hex
+    btxs = registry.fetch_onchain("eth_llamarpc", FakeClient({"eth_getBlockByNumber": EVM_BLOCK}))
+    assert btxs[0]["txid"] == "0xbb"
+    assert btxs[0]["outputs"][0]["value"] == 1.0
+
+
+def test_solana_signatures_dispatch():
+    sigs = registry.fetch_onchain("solana_rpc", FakeClient({"getSignaturesForAddress": SOLANA_SIGS}),
+                                  address="SoLaddr")
+    assert [s["signature"] for s in sigs] == ["sig1", "sig2"]
 
 
 def test_client_offline(tmp_path):

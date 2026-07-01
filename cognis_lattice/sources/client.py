@@ -8,6 +8,7 @@ air-gapped with zero network.
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import urllib.request
 
@@ -36,6 +37,26 @@ class HttpClient:
                     return f.read()
             raise RuntimeError(f"offline: no cached copy for {url}")
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(req, timeout=self.timeout) as r:
+            data = r.read()
+        if cp:
+            with open(cp, "wb") as f:
+                f.write(data)
+        return data
+
+    def post(self, url: str, payload: dict) -> bytes:
+        """JSON POST (for JSON-RPC endpoints), with the same cache/offline model."""
+        cache_key = url + "|" + json.dumps(payload, sort_keys=True)
+        cp = self._cache_path(cache_key)
+        if self.offline:
+            if cp and os.path.exists(cp):
+                with open(cp, "rb") as f:
+                    return f.read()
+            raise RuntimeError(f"offline: no cached copy for POST {url}")
+        body = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(url, data=body, method="POST",
+                                     headers={"User-Agent": USER_AGENT,
+                                              "Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=self.timeout) as r:
             data = r.read()
         if cp:

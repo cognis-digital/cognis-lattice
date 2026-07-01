@@ -3,6 +3,16 @@
 All notable changes to Cognis Lattice are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.1] — 2026-07-01
+
+### Added
+- Live on-chain tracing extended beyond BTC/LTC: **Ethereum & EVM chains**
+  (Blockscout `txlist` GET + `eth_getBlockByNumber` JSON-RPC) and **Solana**
+  (`getSignaturesForAddress`). JSON-RPC `POST` support added to the HTTP client
+  (with the same cache/offline model). `registry.fetch_onchain` dispatches across
+  esplora / blockscout / EVM-RPC / Solana. `sources-address` now traces ETH & SOL.
+- Live-verified: 10,000 Ethereum transactions traced+clustered for a public address.
+
 ## [0.2.0] — 2026-07-01
 
 ### Added

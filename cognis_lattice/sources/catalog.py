@@ -18,7 +18,8 @@ from __future__ import annotations
 _NORMALIZED = {
     "ofac_sdn_xml", "tor_exit_addresses", "tor_bulk_exitlist", "feodo_csv",
     "sslbl_csv", "urlhaus_csv", "threatfox_csv", "raw_iplist",
-    "ransomwhere_json", "cisa_kev_json",
+    "ransomwhere_json", "cisa_kev_json", "esplora",
+    "blockscout_txlist", "evm_rpc", "solana_rpc",
 }
 
 _RAW = [
@@ -98,8 +99,8 @@ _RAW = [
      "transaction", "evm_rpc", "https://developers.cloudflare.com/web3/"),
     ("eth_llamarpc", "blockchain-explorer", ["ethereum"], "https://eth.llamarpc.com", True,
      "transaction", "evm_rpc", "https://llamanodes.com"),
-    ("eth_blockscout", "blockchain-explorer", ["ethereum"], "https://eth.blockscout.com/api", True,
-     "transaction", "raw_json", "https://docs.blockscout.com"),
+    ("eth_blockscout", "blockchain-explorer", ["ethereum"], "https://eth.blockscout.com/api?module=account&action=txlist&address={addr}", True,
+     "transaction", "blockscout_txlist", "https://docs.blockscout.com"),
     ("base_rpc", "blockchain-explorer", ["base"], "https://mainnet.base.org", True,
      "transaction", "evm_rpc", "https://docs.base.org"),
     ("arbitrum_rpc", "blockchain-explorer", ["arbitrum"], "https://arb1.arbitrum.io/rpc", True,

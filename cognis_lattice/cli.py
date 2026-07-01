@@ -162,18 +162,23 @@ def cmd_sources_intel(args):
 
 def cmd_sources_address(args):
     client = HttpClient(cache_dir=args.cache, offline=args.offline)
-    explorers = [s for s in sreg.list_sources(chain=args.chain) if s["parser"] == "esplora"]
-    if not explorers:
-        print(f"no esplora-integrated explorer for chain '{args.chain}' "
-              f"(try: {', '.join(sorted({c for s in sreg.list_sources() for c in s['chains']}))})")
+    onchain = ("esplora", "blockscout_txlist", "solana_rpc")
+    cands = [s for s in sreg.list_sources(chain=args.chain) if s["parser"] in onchain]
+    if not cands:
+        chains = sorted({c for s in sreg.list_sources() if s["parser"] in onchain for c in s["chains"]})
+        print(f"no address-tracing explorer for chain '{args.chain}' (try: {', '.join(chains)})")
         return 1
-    src = explorers[0]
-    txs = sreg.fetch(src["name"], client, address=args.address)
-    print(f"[{src['name']}] {len(txs)} transactions for {args.address}")
-    if txs:
-        clusters, _ = chainmod.common_input_clustering(txs)
-        print(f"wallet clusters (common-input heuristic): {len(clusters)}")
-        print(json.dumps(txs[:2], indent=2))
+    src = cands[0]
+    res = sreg.fetch_onchain(src["name"], client, address=args.address)
+    if src["parser"] == "solana_rpc":
+        print(f"[{src['name']}] {len(res)} signatures for {args.address}")
+        print(json.dumps(res[:5], indent=2))
+    else:
+        print(f"[{src['name']}] {len(res)} transactions for {args.address}")
+        if res:
+            clusters, _ = chainmod.common_input_clustering(res)
+            print(f"wallet clusters (common-input heuristic): {len(clusters)}")
+            print(json.dumps(res[:2], indent=2))
     return 0
 
 
