@@ -1,0 +1,88 @@
+[
+  {
+    "txid": "tx0",
+    "asset": "BTC",
+    "timestamp": "2026-01-02T08:15:00Z",
+    "inputs": [
+      {"address": "addr-A1", "value": 2.0},
+      {"address": "addr-A2", "value": 2.0}
+    ],
+    "outputs": [
+      {"address": "addr-A3", "value": 3.95}
+    ]
+  },
+  {
+    "txid": "txX",
+    "asset": "BTC",
+    "timestamp": "2026-01-02T09:05:00Z",
+    "inputs": [
+      {"address": "addr-A2", "value": 1.0},
+      {"address": "addr-A3", "value": 1.0}
+    ],
+    "outputs": [
+      {"address": "addr-DEP", "value": 2.0}
+    ]
+  },
+  {
+    "txid": "txM",
+    "asset": "BTC",
+    "timestamp": "2026-01-02T11:20:00Z",
+    "inputs": [
+      {"address": "addr-DEP", "value": 2.0},
+      {"address": "addr-X1", "value": 2.0},
+      {"address": "addr-X2", "value": 2.0}
+    ],
+    "outputs": [
+      {"address": "addr-O1", "value": 1.98},
+      {"address": "addr-O2", "value": 1.98},
+      {"address": "addr-O3", "value": 1.98}
+    ]
+  },
+  {
+    "txid": "txS",
+    "asset": "BTC",
+    "timestamp": "2026-01-02T12:40:00Z",
+    "inputs": [
+      {"address": "addr-O1", "value": 1.98}
+    ],
+    "outputs": [
+      {"address": "addr-B1", "value": 1.95}
+    ]
+  },
+  {
+    "txid": "txp1",
+    "asset": "BTC",
+    "timestamp": "2026-01-03T14:00:00Z",
+    "inputs": [
+      {"address": "addr-P0", "value": 5.0}
+    ],
+    "outputs": [
+      {"address": "addr-q1", "value": 0.5},
+      {"address": "addr-P1", "value": 4.4}
+    ]
+  },
+  {
+    "txid": "txp2",
+    "asset": "BTC",
+    "timestamp": "2026-01-03T15:00:00Z",
+    "inputs": [
+      {"address": "addr-P1", "value": 4.4}
+    ],
+    "outputs": [
+      {"address": "addr-q2", "value": 0.6},
+      {"address": "addr-P2", "value": 3.7}
+    ]
+  },
+  {
+    "txid": "txp3",
+    "asset": "BTC",
+    "timestamp": "2026-01-03T16:00:00Z",
+    "inputs": [
+      {"address": "addr-P2", "value": 3.7}
+    ],
+    "outputs": [
+      {"address": "addr-q3", "value": 0.5},
+      {"address": "addr-P3", "value": 3.1}
+    ]
+  }
+]

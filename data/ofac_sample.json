@@ -1,0 +1,10 @@
+[
+  {
+    "name": "SYNTHETIC SANCTIONED ENTITY (TEST DATA — NOT REAL OFAC DATA)",
+    "program": "SAMPLE-TEST",
+    "aka": ["Test Actor One"],
+    "addresses": {
+      "crypto": ["addr-B1"]
+    }
+  }
+]

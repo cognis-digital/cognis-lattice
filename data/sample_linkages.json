@@ -1,0 +1,20 @@
+[
+  {
+    "address": "addr-A1",
+    "ip": "203.0.113.10",
+    "source": "seized-server-log",
+    "confidence": 0.8
+  },
+  {
+    "address": "addr-A3",
+    "address2": "addr-DEP",
+    "source": "direct-spend (tx txX)",
+    "confidence": 0.9
+  },
+  {
+    "address": "addr-DEP",
+    "address2": "addr-B1",
+    "source": "mixer-flow-trace (through CoinJoin; low confidence)",
+    "confidence": 0.5
+  }
+]

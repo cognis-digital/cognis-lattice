@@ -1,0 +1,101 @@
+<!-- Cognis Digital — purple/white brand -->
+<h1 align="center">🟣 Cognis Lattice</h1>
+<p align="center"><b>Counter-Threat-Finance Attribution &amp; Fusion Platform</b><br>
+<i>Fuse IP/infrastructure deanonymization with multi-chain blockchain analytics into one confidence-scored, STIX-exportable threat-actor graph.</i></p>
+
+<p align="center">
+<img alt="license" src="https://img.shields.io/badge/license-COCL--1.0-6D28D9">
+<img alt="python" src="https://img.shields.io/badge/python-3.9%2B-6D28D9">
+<img alt="deps" src="https://img.shields.io/badge/dependencies-none%20(stdlib)-6D28D9">
+<img alt="status" src="https://img.shields.io/badge/status-v0.1.0-6D28D9">
+</p>
+
+---
+
+> **Built for:** SOLIC Accelerator / ONIX OTA — **Challenge Area 2: Deanonymization of Illicit Internet Activities for Counter-Threat Finance.**
+> Cognis Lattice removes the manual "stitch" between IP-attribution tools and blockchain-tracing tools: it fuses both into a single, provenance-tracked, confidence-scored intelligence product suitable for law-enforcement sharing — self-hosted, offline, and air-gap capable.
+
+## Why it exists
+
+Foreign organized-crime and terrorist financiers hide behind anonymized internet
+infrastructure (Tor, VPNs, proxies) **and** obfuscated cryptocurrency flows
+(multi-hop, mixers, tumblers). Today those two attribution disciplines live in
+separate, expensive, vendor-locked tools, and analysts stitch them together by
+hand — slowly, and often in a form too messy to hand a law-enforcement partner.
+
+**Cognis Lattice fuses them.** IP/infrastructure attribution + blockchain
+analytics → one threat-actor graph, every link carrying an explicit confidence
+score and its rationale, exportable as STIX 2.1.
+
+## Highlights
+
+- 🔗 **Blockchain analytics** — common-input wallet clustering, forward/backward
+  money-flow tracing, mixer/CoinJoin detection, de-mix candidate linkage, peel-chain detection.
+- 🌐 **Infrastructure attribution** — Tor/VPN/proxy enrichment, TLS-cert & domain
+  fingerprint clustering, temporal signatures, behavioral co-occurrence.
+- 🛑 **Sanctions screening** — OFAC-style SDN matching for crypto addresses and names.
+- 🧩 **Fusion & confidence** — connected-component threat-actor resolution with a
+  noisy-OR confidence model (HIGH / MODERATE / LOW + rationale).
+- 📤 **STIX 2.1 export** — deterministic, reproducible bundles for partner sharing.
+- 🔒 **Self-hostable / offline** — pure Python stdlib, **zero dependencies**,
+  air-gap ready. Your data never leaves your enclave.
+
+## Quick start
+
+```bash
+git clone https://github.com/cognis-digital/cognis-lattice
+cd cognis-lattice
+python -m cognis_lattice demo --stix bundle.stix.json --json product.json
+```
+
+Example (bundled synthetic data) produces one HIGH-confidence threat actor
+fusing three wallet clusters, a Tor-fronted infrastructure cluster, and an OFAC
+sanctions match, plus mixer/peel-chain analytics and a STIX 2.1 bundle.
+
+### Library / other commands
+
+```bash
+cognis-lattice cluster-chain --tx data/sample_transactions.json
+cognis-lattice trace --tx data/sample_transactions.json --address addr-A1 --direction forward
+cognis-lattice detect-mixer --tx data/sample_transactions.json
+cognis-lattice infra --obs data/sample_infrastructure.json
+cognis-lattice screen --sdn data/ofac_sample.json --tx data/sample_transactions.json
+cognis-lattice fuse --tx data/sample_transactions.json --obs data/sample_infrastructure.json \
+                    --linkages data/sample_linkages.json --sdn data/ofac_sample.json --stix out.stix.json
+```
+
+```python
+from cognis_lattice import chain, netattr, sanctions, fusion, stix
+g = fusion.build_graph(transactions, observations, linkages, sdn)
+actors = fusion.build_threat_actors(g)
+bundle = stix.bundle_from_graph(g, actors)
+```
+
+## Data schemas
+
+See [`docs/METHODS.md`](docs/METHODS.md) for transaction, observation, linkage,
+and SDN schemas, and the exact heuristics behind every score.
+
+## Honest scope & limitations
+
+Cognis Lattice produces **investigative leads with stated confidence — not
+adjudications.** It operates on transparent-ledger transaction data and lawfully
+collected network observations supplied by the operator. It does **not** break
+Tor cryptography and does **not** claim deterministic de-anonymization of privacy
+coins (e.g. Monero). Read [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md) before
+acting on any output.
+
+## Testing
+
+```bash
+python -m pytest -q      # 24 tests
+```
+
+## License
+
+Source-available under the **Cognis Open Collaboration License (COCL) v1.0** —
+see [LICENSE](LICENSE). Non-commercial use is free; commercial use requires a
+license (`licensing@cognis.digital`). Dual-use security software — see
+[NOTICE](NOTICE) for acceptable use.
+
+<p align="center"><sub>© 2026 Cognis Digital LLC · <a href="https://cognis.digital">cognis.digital</a></sub></p>

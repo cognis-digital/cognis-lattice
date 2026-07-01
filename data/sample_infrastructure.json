@@ -1,0 +1,38 @@
+[
+  {
+    "ip": "203.0.113.10",
+    "timestamp": "2026-01-02T11:00:00Z",
+    "asn": "AS64500",
+    "cert_sha256": "CERT-AAA-0001",
+    "domains": ["panel.example-c2.net"],
+    "ports": [443, 9001],
+    "tags": ["tor-exit"]
+  },
+  {
+    "ip": "203.0.113.10",
+    "timestamp": "2026-01-03T11:30:00Z",
+    "asn": "AS64500",
+    "cert_sha256": "CERT-AAA-0001",
+    "domains": ["panel.example-c2.net"],
+    "ports": [443],
+    "tags": ["tor-exit"]
+  },
+  {
+    "ip": "203.0.113.11",
+    "timestamp": "2026-01-02T11:45:00Z",
+    "asn": "AS64500",
+    "cert_sha256": "CERT-AAA-0001",
+    "domains": ["panel.example-c2.net"],
+    "ports": [443],
+    "tags": []
+  },
+  {
+    "ip": "198.51.100.5",
+    "timestamp": "2026-01-04T02:00:00Z",
+    "asn": "AS64510",
+    "cert_sha256": "CERT-BBB-0002",
+    "domains": ["vpn.example-relay.net"],
+    "ports": [1194],
+    "tags": ["vpn"]
+  }
+]
