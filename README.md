@@ -40,6 +40,23 @@ score and its rationale, exportable as STIX 2.1.
 - 🔒 **Self-hostable / offline** — pure Python stdlib, **zero dependencies**,
   air-gap ready. Your data never leaves your enclave.
 
+## Live intelligence sources (48 sources · 16 chains)
+
+Lattice integrates **48 counter-threat-finance / deanonymization sources** (46
+keyless) across **16 blockchains** — OFAC SDN & sanctions, abuse.ch/FireHOL/
+Spamhaus threat-intel, Tor/anonymizer infrastructure, and multi-chain explorers
+(BTC, ETH & EVM chains, Solana, Tron, XRPL, Algorand, LTC, DOGE, BCH). Keyless
+feeds pull live and cache to disk for **offline / air-gap** replay. See
+[`docs/SOURCES.md`](docs/SOURCES.md).
+
+```bash
+cognis-lattice sources-stats                          # coverage
+cognis-lattice sources-fetch ofac_sdn                 # live sanctioned wallets
+cognis-lattice sources-fetch feodo_ipblocklist        # live C2 IPs
+cognis-lattice sources-intel --cache .cache           # fuse feeds
+cognis-lattice sources-address --chain bitcoin --address <ADDR>   # live on-chain trace
+```
+
 ## Quick start
 
 ```bash
@@ -110,8 +127,8 @@ ambiguity 4.0 and reduced confidence 0.37 on equal-value mixing.
 ## Testing
 
 ```bash
-python -m pytest -q      # 29 tests (24 unit + 5 verification gates)
-python bench/run_all.py  # regenerate RESULTS.md
+python -m pytest -q      # 40 tests (analytics + verification + source integration)
+python bench/run_all.py  # regenerate RESULTS.md (incl. source coverage)
 ```
 
 ## License

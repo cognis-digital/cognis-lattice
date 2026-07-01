@@ -3,6 +3,26 @@
 All notable changes to Cognis Lattice are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] — 2026-07-01
+
+### Added
+- **Live intelligence source integration** (`cognis_lattice.sources`): a catalog
+  of **48 sources** (46 keyless) across **16 blockchains** — sanctions (OFAC SDN,
+  OpenSanctions, Ransomwhere), threat-intel (abuse.ch Feodo/URLhaus/ThreatFox/
+  SSLBL, FireHOL, CINS, Spamhaus, Emerging Threats), Tor/anonymizer infrastructure,
+  multi-chain explorers (Esplora/mempool/blockchair/RPC for BTC, ETH & EVM chains,
+  Solana, Tron, XRPL, Algorand, LTC, DOGE, BCH), vuln-intel (CISA KEV/NVD/EPSS/
+  ATT&CK), and chain registries.
+- 18 normalized parsers → common `Indicator` schema; esplora chains parse to
+  Lattice transactions for live on-chain tracing.
+- HTTP client with on-disk cache + **offline/air-gap mode**.
+- `feeds.build_intel` fuses feeds into sanctioned-address / Tor-exit / C2-IP /
+  malicious-cert sets that plug into screening and attribution.
+- CLI: `sources-list`, `sources-stats`, `sources-fetch`, `sources-intel`,
+  `sources-address` (live on-chain trace).
+- Source-coverage metrics added to `bench/run_all.py` / `RESULTS.md`;
+  `tests/test_sources.py` gates catalog integrity, parsers, offline mode, fusion.
+
 ## [0.1.0] — 2026-06-30
 
 Initial public release.

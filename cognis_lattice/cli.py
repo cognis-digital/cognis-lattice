@@ -18,6 +18,9 @@ from . import netattr as netmod
 from . import report as reportmod
 from . import sanctions as sancmod
 from . import stix as stixmod
+from .sources import feeds as sfeeds
+from .sources import registry as sreg
+from .sources.client import HttpClient
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.normpath(os.path.join(_HERE, "..", "data"))
@@ -119,6 +122,61 @@ def cmd_fuse(args):
     return 0
 
 
+def cmd_sources_list(args):
+    rows = sreg.list_sources(category=args.category, chain=args.chain,
+                             keyless=(True if args.keyless else None),
+                             integrated=(True if args.integrated else None))
+    for s in rows:
+        flag = "keyless" if s["keyless"] else "key-req"
+        norm = "norm" if s["integrated"] else "raw "
+        print(f"{s['name']:30} {s['category']:20} {flag:8} {norm}  {','.join(s['chains'])}")
+    print(f"\n{len(rows)} sources")
+    return 0
+
+
+def cmd_sources_stats(args):
+    _emit(sreg.stats())
+    return 0
+
+
+def cmd_sources_fetch(args):
+    client = HttpClient(cache_dir=args.cache, offline=args.offline)
+    res = sreg.fetch(args.name, client, address=args.address)
+    if isinstance(res, list):
+        rows = [r.to_dict() if hasattr(r, "to_dict") else r for r in res]
+        print(json.dumps(rows[:args.limit], indent=2))
+        print(f"\n{len(res)} records ({args.name})")
+    else:
+        print(res.get("note", str(res)))
+    return 0
+
+
+def cmd_sources_intel(args):
+    client = HttpClient(cache_dir=args.cache, offline=args.offline)
+    intel = sfeeds.build_intel(client, on_error="skip")
+    _emit(sfeeds.summary(intel))
+    if intel["errors"]:
+        print("source errors:", json.dumps(intel["errors"], indent=2))
+    return 0
+
+
+def cmd_sources_address(args):
+    client = HttpClient(cache_dir=args.cache, offline=args.offline)
+    explorers = [s for s in sreg.list_sources(chain=args.chain) if s["parser"] == "esplora"]
+    if not explorers:
+        print(f"no esplora-integrated explorer for chain '{args.chain}' "
+              f"(try: {', '.join(sorted({c for s in sreg.list_sources() for c in s['chains']}))})")
+        return 1
+    src = explorers[0]
+    txs = sreg.fetch(src["name"], client, address=args.address)
+    print(f"[{src['name']}] {len(txs)} transactions for {args.address}")
+    if txs:
+        clusters, _ = chainmod.common_input_clustering(txs)
+        print(f"wallet clusters (common-input heuristic): {len(clusters)}")
+        print(json.dumps(txs[:2], indent=2))
+    return 0
+
+
 def build_parser():
     p = argparse.ArgumentParser(
         prog="cognis-lattice",
@@ -165,6 +223,36 @@ def build_parser():
     f.add_argument("--out", help="write JSON product to this path")
     f.add_argument("--stix", help="write STIX 2.1 bundle to this path")
     f.set_defaults(func=cmd_fuse)
+
+    sl = sub.add_parser("sources-list", help="list integrated intelligence sources")
+    sl.add_argument("--category")
+    sl.add_argument("--chain")
+    sl.add_argument("--keyless", action="store_true")
+    sl.add_argument("--integrated", action="store_true")
+    sl.set_defaults(func=cmd_sources_list)
+
+    ss = sub.add_parser("sources-stats", help="source coverage statistics")
+    ss.set_defaults(func=cmd_sources_stats)
+
+    sf = sub.add_parser("sources-fetch", help="fetch + parse one source")
+    sf.add_argument("name")
+    sf.add_argument("--offline", action="store_true")
+    sf.add_argument("--cache", default=".cache")
+    sf.add_argument("--address", help="for address-based explorers")
+    sf.add_argument("--limit", type=int, default=20)
+    sf.set_defaults(func=cmd_sources_fetch)
+
+    si = sub.add_parser("sources-intel", help="build fused intel bundle from feeds")
+    si.add_argument("--offline", action="store_true")
+    si.add_argument("--cache", default=".cache")
+    si.set_defaults(func=cmd_sources_intel)
+
+    sa = sub.add_parser("sources-address", help="live on-chain address trace (esplora chains)")
+    sa.add_argument("--chain", required=True)
+    sa.add_argument("--address", required=True)
+    sa.add_argument("--offline", action="store_true")
+    sa.add_argument("--cache", default=".cache")
+    sa.set_defaults(func=cmd_sources_address)
     return p
 
 

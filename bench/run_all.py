@@ -11,6 +11,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from bench import benchmark, datagen, evaluate  # noqa: E402
+from cognis_lattice.sources import registry as sreg  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -30,7 +31,8 @@ def build_results():
         "system": platform.system(),
         "machine": platform.machine(),
     }
-    return {"accuracy": {"clean": clean, "noisy": noisy}, "performance": perf, "environment": env}
+    return {"accuracy": {"clean": clean, "noisy": noisy}, "performance": perf,
+            "sources": sreg.stats(), "environment": env}
 
 
 def render_md(res) -> str:
@@ -70,8 +72,15 @@ def render_md(res) -> str:
         L.append(f"| {r['transactions']:,} | {r['cluster_s']} | {r['detect_mixer_s']} | "
                  f"{r['detect_peel_s']} | {r['build_graph_s']} | {r['total_s']} | {r['tx_per_s']:,} |")
     L.append("")
+    s = res["sources"]
+    L.append("## Intelligence source coverage\n")
+    L.append(f"- **{s['total']} integrated sources** ({s['keyless']} keyless, "
+             f"{s['integrated']} with normalized parsers)")
+    L.append(f"- **{s['chain_count']} blockchains** covered: {', '.join(s['chains'])}")
+    L.append("- By category: " + ", ".join(f"{k}={v}" for k, v in s["by_category"].items()))
+    L.append("")
     L.append("All numbers above are produced by `bench/run_all.py` and gated in CI by "
-             "`tests/test_bench.py`. See `docs/LIMITATIONS.md` for scope caveats.\n")
+             "`tests/test_bench.py` / `tests/test_sources.py`. See `docs/LIMITATIONS.md`.\n")
     return "\n".join(L)
 
 

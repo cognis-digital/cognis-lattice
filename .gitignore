@@ -11,4 +11,5 @@ htmlcov/
 venv/
 *.stix.json
 out_*.json
+.cache/
 .DS_Store

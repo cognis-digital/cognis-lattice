@@ -106,31 +106,63 @@
       "cluster_s": 0.0027,
       "detect_mixer_s": 0.0002,
       "detect_peel_s": 0.0008,
-      "build_graph_s": 0.0181,
-      "total_s": 0.0219,
-      "tx_per_s": 91385
+      "build_graph_s": 0.0183,
+      "total_s": 0.0221,
+      "tx_per_s": 90618
     },
     {
       "transactions": 10000,
       "clusters_found": 1,
-      "cluster_s": 0.0157,
-      "detect_mixer_s": 0.0016,
-      "detect_peel_s": 0.0052,
-      "build_graph_s": 0.1129,
-      "total_s": 0.1353,
-      "tx_per_s": 73907
+      "cluster_s": 0.015,
+      "detect_mixer_s": 0.0014,
+      "detect_peel_s": 0.007,
+      "build_graph_s": 0.1076,
+      "total_s": 0.131,
+      "tx_per_s": 76363
     },
     {
       "transactions": 40000,
       "clusters_found": 1,
-      "cluster_s": 0.072,
-      "detect_mixer_s": 0.0062,
-      "detect_peel_s": 0.0319,
-      "build_graph_s": 0.6622,
-      "total_s": 0.7723,
-      "tx_per_s": 51792
+      "cluster_s": 0.0744,
+      "detect_mixer_s": 0.0066,
+      "detect_peel_s": 0.0267,
+      "build_graph_s": 0.5772,
+      "total_s": 0.685,
+      "tx_per_s": 58392
     }
   ],
+  "sources": {
+    "total": 48,
+    "keyless": 46,
+    "integrated": 18,
+    "by_category": {
+      "blockchain-explorer": 20,
+      "chain-registry": 2,
+      "sanctions": 6,
+      "threat-intel": 12,
+      "tor-infra": 4,
+      "vuln-intel": 4
+    },
+    "chains": [
+      "algorand",
+      "arbitrum",
+      "avalanche",
+      "base",
+      "bitcoin",
+      "bitcoin-cash",
+      "bsc",
+      "dogecoin",
+      "ethereum",
+      "litecoin",
+      "monero",
+      "optimism",
+      "polygon",
+      "solana",
+      "tron",
+      "xrpl"
+    ],
+    "chain_count": 16
+  },
   "environment": {
     "python": "3.14.0",
     "implementation": "CPython",

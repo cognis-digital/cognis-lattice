@@ -1,0 +1,127 @@
+import pytest
+
+from cognis_lattice import chain
+from cognis_lattice.sources import feeds, parsers, registry
+from cognis_lattice.sources.catalog import CATALOG
+from cognis_lattice.sources.client import HttpClient
+
+# ---------------- fixtures (inline; no network) ----------------
+OFAC_XML = """<?xml version="1.0"?>
+<sdnList xmlns="http://tempuri.org/sdnList.xsd">
+ <sdnEntry><uid>1</uid><lastName>SYNTH ACTOR</lastName>
+  <idList>
+   <id><uid>11</uid><idType>Digital Currency Address - XBT</idType><idNumber>1TestBtcAddrABC</idNumber></id>
+   <id><uid>12</uid><idType>Digital Currency Address - ETH</idType><idNumber>0xabc123</idNumber></id>
+   <id><uid>13</uid><idType>Passport</idType><idNumber>X123</idNumber></id>
+  </idList>
+ </sdnEntry>
+</sdnList>"""
+
+TOR_EXIT = "ExitNode AAAA\nPublished 2026-01-01\nExitAddress 203.0.113.50 2026-01-01 00:00:00\nExitAddress 198.51.100.7 2026-01-02 00:00:00\n"
+FEODO_CSV = '# comment\n"first_seen","dst_ip","dst_port"\n"2026-01-01","203.0.113.9","443"\n"2026-01-02","198.51.100.3","8080"\n'
+SSLBL_CSV = '# ssl\n"Listingdate","SHA1","Reason"\n"2026-01-01","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","C2"\n'
+RANSOM_JSON = '{"result":[{"address":"1RansomBtc","blockchain":"bitcoin","family":"Conti"},{"address":"0xdead","blockchain":"ethereum","family":"X"}]}'
+KEV_JSON = '{"vulnerabilities":[{"cveID":"CVE-2026-0001","product":"X"},{"cveID":"CVE-2026-0002"}]}'
+ESPLORA = '[{"txid":"abc","status":{"block_time":1700000000},"vin":[{"prevout":{"scriptpubkey_address":"A1","value":200000000}}],"vout":[{"scriptpubkey_address":"B1","value":150000000},{"scriptpubkey_address":"A2","value":49000000}]}]'
+IPLIST = "# header\n203.0.113.1\n198.51.100.2/32\nnotanip\n"
+
+
+class FakeClient:
+    def __init__(self, mapping):
+        self.mapping = mapping
+
+    def get(self, url):
+        for k, v in self.mapping.items():
+            if k in url:
+                return v.encode() if isinstance(v, str) else v
+        raise RuntimeError("no fixture for " + url)
+
+
+# ---------------- catalog integrity ----------------
+def test_catalog_size_and_uniqueness():
+    assert len(CATALOG) >= 40
+    names = [s["name"] for s in CATALOG]
+    assert len(names) == len(set(names))
+
+
+def test_catalog_required_fields():
+    cats = {"sanctions", "threat-intel", "tor-infra", "blockchain-explorer",
+            "chain-registry", "vuln-intel"}
+    for s in CATALOG:
+        assert s["name"] and s["url"].startswith("http")
+        assert s["category"] in cats
+        assert isinstance(s["chains"], list)
+        assert isinstance(s["keyless"], bool)
+
+
+def test_stats_coverage():
+    st = registry.stats()
+    assert st["total"] >= 40
+    assert st["keyless"] >= 30
+    assert st["integrated"] >= 10
+    assert st["chain_count"] >= 10
+
+
+# ---------------- parsers ----------------
+def test_ofac_parser():
+    inds = parsers.ofac_sdn_xml(OFAC_XML)
+    vals = {i.value for i in inds}
+    assert vals == {"1TestBtcAddrABC", "0xabc123"}
+    assert all("sanctions" in i.tags for i in inds)
+    assert {i.chain for i in inds} == {"bitcoin", "ethereum"}
+
+
+def test_tor_and_iplist_parsers():
+    assert {i.value for i in parsers.tor_exit_addresses(TOR_EXIT)} == {"203.0.113.50", "198.51.100.7"}
+    assert {i.value for i in parsers.raw_iplist(IPLIST)} == {"203.0.113.1", "198.51.100.2"}
+
+
+def test_feodo_sslbl_ransom_kev():
+    assert {i.value for i in parsers.feodo_csv(FEODO_CSV)} == {"203.0.113.9", "198.51.100.3"}
+    certs = parsers.sslbl_csv(SSLBL_CSV)
+    assert certs and certs[0].kind == "cert-sha1"
+    assert {i.value for i in parsers.ransomwhere_json(RANSOM_JSON)} == {"1RansomBtc", "0xdead"}
+    assert {i.value for i in parsers.cisa_kev_json(KEV_JSON)} == {"CVE-2026-0001", "CVE-2026-0002"}
+
+
+def test_esplora_to_lattice_txs_and_clustering():
+    txs = parsers.esplora_txs(ESPLORA, address="A1", chain="bitcoin")
+    assert txs[0]["inputs"][0] == {"address": "A1", "value": 2.0}
+    assert txs[0]["outputs"][0] == {"address": "B1", "value": 1.5}
+    clusters, _ = chain.common_input_clustering(txs)
+    assert clusters  # integration: live-shaped txs feed chain analytics
+
+
+# ---------------- registry fetch + client offline ----------------
+def test_registry_fetch_ofac():
+    inds = registry.fetch("ofac_sdn", FakeClient({"sdn.xml": OFAC_XML}))
+    assert any(i.value == "1TestBtcAddrABC" for i in inds)
+
+
+def test_registry_fetch_esplora_address():
+    txs = registry.fetch("btc_esplora", FakeClient({"blockstream.info": ESPLORA}), address="A1")
+    assert txs[0]["txid"] == "abc"
+
+
+def test_client_offline(tmp_path):
+    url = "https://example.test/resource"
+    c = HttpClient(cache_dir=str(tmp_path), offline=False)
+    with open(c._cache_path(url), "wb") as f:
+        f.write(b"cached-bytes")
+    off = HttpClient(cache_dir=str(tmp_path), offline=True)
+    assert off.get(url) == b"cached-bytes"
+    with pytest.raises(RuntimeError):
+        off.get("https://example.test/missing")
+
+
+# ---------------- feeds fusion ----------------
+def test_build_intel_fuses_feeds():
+    client = FakeClient({"sdn.xml": OFAC_XML, "exit-addresses": TOR_EXIT,
+                         "ipblocklist.csv": FEODO_CSV, "ransomwhe": RANSOM_JSON})
+    intel = feeds.build_intel(client, sources=["ofac_sdn", "tor_exit_addresses",
+                                               "feodo_ipblocklist", "ransomwhere"])
+    assert "1testbtcaddrabc" in intel["sanctioned_addresses"]
+    assert "1ransombtc" in intel["sanctioned_addresses"]
+    assert "203.0.113.50" in intel["tor_exits"]
+    assert "203.0.113.9" in intel["c2_ips"]
+    assert feeds.summary(intel)["indicators"] >= 6
