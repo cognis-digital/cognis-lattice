@@ -103,40 +103,40 @@
     {
       "transactions": 2000,
       "clusters_found": 1,
-      "cluster_s": 0.0032,
-      "detect_mixer_s": 0.0004,
-      "detect_peel_s": 0.0012,
-      "build_graph_s": 0.022,
-      "total_s": 0.0269,
-      "tx_per_s": 74460
+      "cluster_s": 0.0041,
+      "detect_mixer_s": 0.0013,
+      "detect_peel_s": 0.0032,
+      "build_graph_s": 0.038,
+      "total_s": 0.0466,
+      "tx_per_s": 42955
     },
     {
       "transactions": 10000,
       "clusters_found": 1,
-      "cluster_s": 0.0148,
-      "detect_mixer_s": 0.0016,
-      "detect_peel_s": 0.0048,
-      "build_graph_s": 0.1076,
-      "total_s": 0.1288,
-      "tx_per_s": 77623
+      "cluster_s": 0.0379,
+      "detect_mixer_s": 0.0096,
+      "detect_peel_s": 0.0295,
+      "build_graph_s": 0.3117,
+      "total_s": 0.3888,
+      "tx_per_s": 25718
     },
     {
       "transactions": 40000,
       "clusters_found": 1,
-      "cluster_s": 0.0773,
-      "detect_mixer_s": 0.0066,
-      "detect_peel_s": 0.0295,
-      "build_graph_s": 0.8039,
-      "total_s": 0.9172,
-      "tx_per_s": 43609
+      "cluster_s": 0.1853,
+      "detect_mixer_s": 0.0334,
+      "detect_peel_s": 0.1221,
+      "build_graph_s": 1.5809,
+      "total_s": 1.9218,
+      "tx_per_s": 20814
     }
   ],
   "sources": {
-    "total": 56,
-    "keyless": 54,
-    "integrated": 41,
+    "total": 61,
+    "keyless": 59,
+    "integrated": 46,
     "by_category": {
-      "blockchain-explorer": 20,
+      "blockchain-explorer": 25,
       "chain-registry": 2,
       "sanctions": 7,
       "threat-intel": 19,
@@ -153,6 +153,7 @@
       "bsc",
       "dogecoin",
       "ethereum",
+      "gnosis",
       "litecoin",
       "monero",
       "optimism",
@@ -161,7 +162,7 @@
       "tron",
       "xrpl"
     ],
-    "chain_count": 16
+    "chain_count": 17
   },
   "environment": {
     "python": "3.14.0",

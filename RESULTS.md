@@ -28,14 +28,14 @@ Metrics computed against known synthetic structure. The **clean** profile measur
 
 | Transactions | Cluster (s) | Mixer (s) | Peel (s) | Build graph (s) | Total (s) | Tx/s |
 |---:|---:|---:|---:|---:|---:|---:|
-| 2,000 | 0.0032 | 0.0004 | 0.0012 | 0.022 | 0.0269 | 74,460 |
-| 10,000 | 0.0148 | 0.0016 | 0.0048 | 0.1076 | 0.1288 | 77,623 |
-| 40,000 | 0.0773 | 0.0066 | 0.0295 | 0.8039 | 0.9172 | 43,609 |
+| 2,000 | 0.0041 | 0.0013 | 0.0032 | 0.038 | 0.0466 | 42,955 |
+| 10,000 | 0.0379 | 0.0096 | 0.0295 | 0.3117 | 0.3888 | 25,718 |
+| 40,000 | 0.1853 | 0.0334 | 0.1221 | 1.5809 | 1.9218 | 20,814 |
 
 ## Intelligence source coverage
 
-- **56 integrated sources** (54 keyless, 41 with normalized parsers)
-- **16 blockchains** covered: algorand, arbitrum, avalanche, base, bitcoin, bitcoin-cash, bsc, dogecoin, ethereum, litecoin, monero, optimism, polygon, solana, tron, xrpl
-- By category: blockchain-explorer=20, chain-registry=2, sanctions=7, threat-intel=19, tor-infra=4, vuln-intel=4
+- **61 integrated sources** (59 keyless, 46 with normalized parsers)
+- **17 blockchains** covered: algorand, arbitrum, avalanche, base, bitcoin, bitcoin-cash, bsc, dogecoin, ethereum, gnosis, litecoin, monero, optimism, polygon, solana, tron, xrpl
+- By category: blockchain-explorer=25, chain-registry=2, sanctions=7, threat-intel=19, tor-infra=4, vuln-intel=4
 
 All numbers above are produced by `bench/run_all.py` and gated in CI by `tests/test_bench.py` / `tests/test_sources.py`. See `docs/LIMITATIONS.md`.

@@ -3,6 +3,13 @@
 All notable changes to Cognis Lattice are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.1] — 2026-07-02
+
+### Added
+- Blockscout explorer instances for **Base, Optimism, Polygon, Arbitrum, and
+  Gnosis** — live EVM address tracing on these chains via the existing normalized
+  `blockscout_txlist` parser. Catalog now 61 sources / 59 keyless / 17 chains.
+
 ## [0.4.0] — 2026-07-02
 
 ### Added
